@@ -11,12 +11,15 @@ COPY ./web .
 COPY ./VERSION .
 RUN DISABLE_ESLINT_PLUGIN='true' VITE_APP_VERSION=$(cat VERSION) npm run build
 
-FROM golang:1.25.0 AS builder2
+FROM golang:1.23-alpine AS builder2
+
+# 🔥 修复 1：安装 CGO 依赖（因为你设置了 CGO_ENABLED=1）
+RUN apk add --no-cache gcc musl-dev
 
 ENV GO111MODULE=on \
     CGO_ENABLED=1 \
     GOOS=linux \
-    GOPROXY=https://proxy.golang.org,direct
+    GOPROXY=https://goproxy.cn,direct
 
 WORKDIR /build
 ADD go.mod go.sum ./
